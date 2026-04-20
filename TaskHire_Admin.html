@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskHire Admin Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --orange:#FF5C1A;--orange-light:#FFF0EB;
+  --dark:#0D0D0D;--dark2:#1A1A1A;
+  --mid:#888;--light:#F5F3EE;--white:#fff;
+  --green:#0FAF6B;--green-bg:#E6F9F0;
+  --blue:#1A6EFF;--blue-bg:#EBF0FF;
+  --amber:#D97706;--amber-bg:#FEF3C7;
+  --red:#E53E3E;--red-bg:#FFF0F0;
+  --border:#E8E5DF;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F0EFEA;color:var(--dark);display:flex;min-height:100vh;font-size:14px}
+
+/* LOGIN */
+#login-page{display:flex;align-items:center;justify-content:center;min-height:100vh;width:100%;background:var(--dark)}
+.login-card{background:white;border-radius:24px;padding:40px;width:380px}
+.login-logo{font-size:28px;font-weight:700;margin-bottom:4px}
+.login-logo span{color:var(--orange)}
+.login-sub{color:var(--mid);font-size:13px;margin-bottom:32px}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;color:var(--mid);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.5px}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;outline:none;font-family:inherit;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--orange)}
+.login-btn{width:100%;background:var(--orange);color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px}
+.login-btn:hover{background:#e54d12}
+.login-error{color:var(--red);font-size:13px;margin-top:8px;display:none;text-align:center}
+.login-hint{background:var(--light);border-radius:10px;padding:12px;margin-top:16px;font-size:12px;color:var(--mid);line-height:1.6}
+
+/* APP LAYOUT */
+#app{display:none;width:100%;min-height:100vh}
+.sidebar{width:230px;background:var(--dark);min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+.logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.logo-text{font-size:22px;font-weight:700;color:white}
+.logo-text span{color:var(--orange)}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px}
+.nav{flex:1;padding:16px 0}
+.nav-section{padding:0 12px;margin-bottom:6px}
+.nav-section-label{font-size:10px;color:rgba(255,255,255,0.3);font-weight:600;letter-spacing:1px;text-transform:uppercase;padding:0 8px;margin-bottom:6px;display:block}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;margin-bottom:2px;color:rgba(255,255,255,0.5);font-size:13px;font-weight:500;transition:all 0.15s;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:white}
+.nav-item.active{background:rgba(255,92,26,0.2);color:var(--orange)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--orange);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
+.sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,0.08);margin-top:auto}
+.admin-info{display:flex;align-items:center;gap:10px}
+.admin-avatar{width:34px;height:34px;border-radius:10px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:15px;color:white;font-weight:700;flex-shrink:0}
+.admin-name{font-size:13px;color:white;font-weight:500}
+.admin-role{font-size:11px;color:rgba(255,255,255,0.4)}
+.logout-btn{margin-top:10px;width:100%;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);border:none;border-radius:8px;padding:8px;font-size:12px;cursor:pointer;font-family:inherit}
+.logout-btn:hover{background:rgba(255,0,0,0.15);color:#ff6b6b}
+
+/* MAIN */
+.main{margin-left:230px;flex:1;min-width:0}
+.topbar{background:white;border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.page-title{font-size:16px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.search-input{display:flex;align-items:center;gap:8px;background:var(--light);border:1px solid var(--border);border-radius:10px;padding:7px 14px;font-size:13px;color:var(--mid);min-width:220px}
+.search-input input{border:none;outline:none;background:transparent;font-size:13px;font-family:inherit;width:100%}
+.notif-btn{width:36px;height:36px;border-radius:10px;background:var(--light);border:none;cursor:pointer;font-size:18px;position:relative;display:flex;align-items:center;justify-content:center}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--orange);border-radius:50%;border:2px solid white}
+.content{padding:24px}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:white;border-radius:16px;padding:18px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s}
+.stat-card:hover{border-color:var(--orange);transform:translateY(-2px)}
+.stat-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.stat-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.stat-change{font-size:11px;font-weight:600;padding:3px 8px;border-radius:6px}
+.stat-up{background:var(--green-bg);color:var(--green)}
+.stat-down{background:var(--red-bg);color:var(--red)}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:3px}
+.stat-label{font-size:12px;color:var(--mid)}
+
+/* CARDS */
+.card{background:white;border-radius:16px;border:1px solid var(--border);overflow:hidden;margin-bottom:16px}
+.card-header{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;border-bottom:1px solid var(--border)}
+.card-title{font-size:14px;font-weight:600}
+.card-btn{font-size:12px;color:var(--orange);cursor:pointer;border:none;background:none;font-weight:600;padding:6px 12px;border-radius:8px;transition:background 0.15s}
+.card-btn:hover{background:var(--orange-light)}
+.card-btn.primary{background:var(--orange);color:white}
+.card-btn.primary:hover{background:#e54d12}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:0.5px;padding:11px 18px;background:var(--light);border-bottom:1px solid var(--border)}
+td{padding:13px 18px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF8}
+.cell-flex{display:flex;align-items:center;gap:10px}
+.cell-avatar{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.cell-name{font-weight:500;font-size:13px}
+.cell-sub{font-size:11px;color:var(--mid);margin-top:1px}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:600}
+.b-green{background:var(--green-bg);color:var(--green)}
+.b-orange{background:var(--orange-light);color:var(--orange)}
+.b-amber{background:var(--amber-bg);color:var(--amber)}
+.b-red{background:var(--red-bg);color:var(--red)}
+.b-blue{background:var(--blue-bg);color:var(--blue)}
+.b-gray{background:var(--light);color:var(--mid)}
+
+/* ACTION BUTTONS */
+.act-btn{padding:5px 11px;border-radius:7px;border:none;cursor:pointer;font-size:11px;font-weight:600;font-family:inherit;margin-right:4px;transition:opacity 0.15s}
+.act-btn:hover{opacity:0.8}
+.ab-green{background:var(--green-bg);color:var(--green)}
+.ab-red{background:var(--red-bg);color:var(--red)}
+.ab-blue{background:var(--blue-bg);color:var(--blue)}
+.ab-orange{background:var(--orange-light);color:var(--orange)}
+
+/* SCREENS */
+.screen{display:none}
+.screen.active{display:block}
+
+/* CHART */
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:110px;padding:16px 18px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-val-label{font-size:10px;font-weight:600;color:var(--dark)}
+.bar-fill{width:100%;border-radius:5px 5px 0 0;background:var(--orange);opacity:0.85;transition:height 0.5s ease;cursor:pointer}
+.bar-fill:hover{opacity:1}
+.bar-day{font-size:10px;color:var(--mid)}
+
+/* QUICK ACTIONS */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.quick-btn{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;cursor:pointer;border:1.5px solid var(--border);background:var(--light);transition:all 0.15s}
+.quick-btn:hover{border-color:var(--orange);background:var(--orange-light)}
+.quick-icon{font-size:22px}
+.quick-label{font-size:13px;font-weight:500}
+.quick-sub{font-size:11px;color:var(--mid);margin-top:1px}
+
+/* ACTIVITY */
+.activity-item{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.act-text{font-size:12px;line-height:1.5;flex:1}
+.act-time{font-size:10px;color:var(--mid);margin-top:2px}
+
+/* TWO COL LAYOUT */
+.two-col{display:grid;grid-template-columns:1fr 340px;gap:16px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--dark);color:white;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* LOADING SPINNER */
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row td{text-align:center;padding:32px;color:var(--mid)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 24px;color:var(--mid)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-text{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--dark)}
+.empty-sub{font-size:13px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:white;border-radius:20px;padding:28px;width:420px;max-width:90vw}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--mid);margin-bottom:20px}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.modal-cancel{background:var(--light);color:var(--dark)}
+.modal-confirm{background:var(--orange);color:white}
+
+/* TABS */
+.tab-row{display:flex;gap:6px;padding:14px 18px;border-bottom:1px solid var(--border);overflow-x:auto}
+.tab{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:white;color:var(--mid);white-space:nowrap;transition:all 0.15s}
+.tab.active{background:var(--dark);color:white;border-color:var(--dark)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- LOGIN PAGE -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-logo">Task<span>Hire</span></div>
+    <div class="login-sub">Admin Dashboard — Sign in to continue</div>
+    <div class="form-group">
+      <label class="form-label">Phone Number</label>
+      <input class="form-input" id="login-phone" type="text" placeholder="03001234567" value="03001234567">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="login-pass" type="password" placeholder="••••••••" value="test1234">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-error" id="login-error">Wrong phone or password. Try again.</div>
+    <div class="login-hint">
+      <strong>Quick start:</strong> Phone: <code>03001234567</code> | Password: <code>test1234</code><br>
+      Make sure your FastAPI server is running at <code>localhost:8000</code>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MAIN APP -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-text">Task<span>Hire</span></div>
+      <div class="logo-sub">Admin Dashboard</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">
+        <span class="nav-section-label">Overview</span>
+        <div class="nav-item active" onclick="goPage('dashboard',this)"><div class="nav-icon">📊</div>Dashboard</div>
+      </div>
+      <div class="nav-section" style="margin-top:8px">
+        <span class="nav-section-label">Manage</span>
+        <div class="nav-item" onclick="goPage('workers',this)"><div class="nav-icon">👷</div>Workers<div class="nav-badge" id="workers-badge">-</div></div>
+        <div class="nav-item" onclick="goPage('bookings',this)"><div class="nav-icon">📋</div>Bookings<div class="nav-badge" id="bookings-badge">-</div></div>
+        <div class="nav-item" onclick="goPage('users',this)"><div class="nav-icon">👥</div>Users</div>
+        <div class="nav-item" onclick="goPage('payments',this)"><div class="nav-icon">💳</div>Payments</div>
+        <div class="nav-item" onclick="goPage('categories',this)"><div class="nav-icon">🗂️</div>Categories</div>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-avatar" id="admin-initials">A</div>
+        <div>
+          <div class="admin-name" id="admin-name">Admin</div>
+          <div class="admin-role">Super Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 Sign Out</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="topbar-right">
+        <div class="search-input">🔍 <input type="text" placeholder="Search..."></div>
+        <button class="notif-btn">🔔<div class="notif-dot"></div></button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══════════ DASHBOARD ══════════ -->
+      <div class="screen active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card" onclick="goPage('users',null)">
+            <div class="stat-top">
+              <div class="stat-icon" style="background:var(--orange-light)">👥</div>
+              <div class="stat-change stat-up">+12%</div>
+            </div>
+            <div class="stat-val" id="stat-users">—</div>
+            <div class="stat-label">Total Users</div>
+          </div>
+          <div class="stat-card" onclick="goPage('workers',null)">
+            <div class="stat-top">
+              <div class="stat-icon" style="background:var(--blue-bg)">👷</div>
+              <div class="stat-change stat-up">+8%</div>
+            </div>
+            <div class="stat-val" id="stat-workers">—</div>
+            <div class="stat-label">Total Workers</div>
+          </div>
+          <div class="stat-card" onclick="goPage('bookings',null)">
+            <div class="stat-top">
+              <div class="stat-icon" style="background:var(--green-bg)">📋</div>
+              <div class="stat-change stat-up">+23%</div>
+            </div>
+            <div class="stat-val" id="stat-bookings">—</div>
+            <div class="stat-label">Total Bookings</div>
+          </div>
+          <div class="stat-card" onclick="goPage('payments',null)">
+            <div class="stat-top">
+              <div class="stat-icon" style="background:var(--amber-bg)">💰</div>
+              <div class="stat-change stat-up">+18%</div>
+            </div>
+            <div class="stat-val" id="stat-revenue">—</div>
+            <div class="stat-label">Total Revenue</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <!-- Recent bookings -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Recent Bookings</div>
+                <button class="card-btn" onclick="goPage('bookings',null)">View all</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Ref</th><th>Service</th><th>Amount</th><th>Status</th></tr></thead>
+                  <tbody id="recent-bookings-tbody">
+                    <tr class="loading-row"><td colspan="4"><div class="spinner"></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Activity -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">Live Activity</div><button class="card-btn" onclick="loadDashboard()">↻ Refresh</button></div>
+              <div id="activity-feed">
+                <div class="activity-item"><div class="act-icon" style="background:var(--green-bg)">✅</div><div><div class="act-text">Server connected — dashboard loaded successfully</div><div class="act-time">just now</div></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right column -->
+          <div>
+            <!-- Mini stats -->
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-header"><div class="card-title">Bookings breakdown</div></div>
+              <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--mid)">⏳ Pending</span>
+                  <span class="badge b-amber" id="mini-pending">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--mid)">✅ Confirmed</span>
+                  <span class="badge b-blue" id="mini-confirmed">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--mid)">🟢 Completed</span>
+                  <span class="badge b-green" id="mini-completed">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--mid)">👷 Available Workers</span>
+                  <span class="badge b-orange" id="mini-available">—</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:var(--mid)">✔️ Verified Workers</span>
+                  <span class="badge b-green" id="mini-verified">—</span>
+                </div>
+              </div>
+            </div>
+            <!-- Quick actions -->
+            <div class="card">
+              <div class="card-header"><div class="card-title">Quick Actions</div></div>
+              <div class="quick-grid">
+                <div class="quick-btn" onclick="goPage('workers',null)">
+                  <div class="quick-icon">✅</div>
+                  <div><div class="quick-label">Verify Workers</div><div class="quick-sub">Check pending</div></div>
+                </div>
+                <div class="quick-btn" onclick="goPage('bookings',null)">
+                  <div class="quick-icon">📋</div>
+                  <div><div class="quick-label">View Bookings</div><div class="quick-sub">Manage all</div></div>
+                </div>
+                <div class="quick-btn" onclick="goPage('categories',null)">
+                  <div class="quick-icon">🗂️</div>
+                  <div><div class="quick-label">Categories</div><div class="quick-sub">Add / edit</div></div>
+                </div>
+                <div class="quick-btn" onclick="goPage('payments',null)">
+                  <div class="quick-icon">💰</div>
+                  <div><div class="quick-label">Payments</div><div class="quick-sub">View revenue</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ WORKERS ══════════ -->
+      <div class="screen" id="page-workers">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">All Workers</div>
+            <div style="display:flex;gap:8px">
+              <button class="card-btn" onclick="loadWorkers()">↻ Refresh</button>
+            </div>
+          </div>
+          <div class="tab-row">
+            <div class="tab active" onclick="filterWorkers('all',this)">All</div>
+            <div class="tab" onclick="filterWorkers('available',this)">Available</div>
+            <div class="tab" onclick="filterWorkers('verified',this)">Verified</div>
+            <div class="tab" onclick="filterWorkers('unverified',this)">Pending Verify</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Worker</th><th>Category</th><th>Rate/Day</th><th>Rating</th><th>Jobs</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="workers-tbody">
+                <tr class="loading-row"><td colspan="7"><div class="spinner"></div> Loading workers...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ BOOKINGS ══════════ -->
+      <div class="screen" id="page-bookings">
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--amber-bg)">⏳</div></div><div class="stat-val" style="font-size:22px" id="b-pending">—</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--blue-bg)">📌</div></div><div class="stat-val" style="font-size:22px" id="b-confirmed">—</div><div class="stat-label">Confirmed</div></div>
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--green-bg)">✅</div></div><div class="stat-val" style="font-size:22px" id="b-completed">—</div><div class="stat-label">Completed</div></div>
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--red-bg)">❌</div></div><div class="stat-val" style="font-size:22px" id="b-cancelled">—</div><div class="stat-label">Cancelled</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">All Bookings</div><button class="card-btn" onclick="loadBookings()">↻ Refresh</button></div>
+          <div class="tab-row">
+            <div class="tab active" onclick="filterBookings(null,this)">All</div>
+            <div class="tab" onclick="filterBookings('pending',this)">Pending</div>
+            <div class="tab" onclick="filterBookings('confirmed',this)">Confirmed</div>
+            <div class="tab" onclick="filterBookings('ongoing',this)">Ongoing</div>
+            <div class="tab" onclick="filterBookings('completed',this)">Completed</div>
+            <div class="tab" onclick="filterBookings('cancelled',this)">Cancelled</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Booking Ref</th><th>User</th><th>Worker</th><th>Service</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="bookings-tbody">
+                <tr class="loading-row"><td colspan="8"><div class="spinner"></div> Loading bookings...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ USERS ══════════ -->
+      <div class="screen" id="page-users">
+        <div class="card">
+          <div class="card-header"><div class="card-title">All Users</div><button class="card-btn" onclick="loadUsers()">↻ Refresh</button></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Phone</th><th>City</th><th>Bookings</th><th>Admin</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="users-tbody">
+                <tr class="loading-row"><td colspan="7"><div class="spinner"></div> Loading users...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ PAYMENTS ══════════ -->
+      <div class="screen" id="page-payments">
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--green-bg)">💰</div><div class="stat-change stat-up">+18%</div></div><div class="stat-val" id="p-revenue">—</div><div class="stat-label">Total Revenue</div></div>
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--blue-bg)">📊</div></div><div class="stat-val" id="p-bookings">—</div><div class="stat-label">Paid Bookings</div></div>
+          <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--amber-bg)">⏳</div></div><div class="stat-val" id="p-pending">—</div><div class="stat-label">Pending Bookings</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Payment Overview</div></div>
+          <div style="padding:24px;text-align:center;color:var(--mid)">
+            <div style="font-size:40px;margin-bottom:12px">💳</div>
+            <div style="font-size:15px;font-weight:500;color:var(--dark);margin-bottom:6px">Payment history loads from bookings</div>
+            <div style="font-size:13px">Connect JazzCash/EasyPaisa API to see real transactions here</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ CATEGORIES ══════════ -->
+      <div class="screen" id="page-categories">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Service Categories</div>
+            <button class="card-btn primary" onclick="loadCategories()">↻ Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Category</th><th>Description</th><th>Status</th></tr></thead>
+              <tbody id="categories-tbody">
+                <tr class="loading-row"><td colspan="3"><div class="spinner"></div> Loading categories...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Confirm Action</div>
+    <div class="modal-sub" id="modal-sub">Are you sure?</div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn modal-confirm" id="modal-confirm-btn">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG — change IP if needed
+// ═══════════════════════════════════════════
+const API = 'http://127.0.0.1:8000/api';
+let TOKEN = '';
+let currentUser = null;
+let allWorkers = [];
+let allBookings = [];
+
+const EMOJIS = {Mechanic:'🔧',Driver:'🚗',Plumber:'🔩',Electrician:'⚡',Cleaner:'🧹',Painter:'🎨',Labour:'👷',Gardener:'🌿',Cook:'👨‍🍳',Carpenter:'🪚','AC Technician':'❄️','Security Guard':'💂'};
+const AVATARBG = ['#FFF0EB','#EBF0FF','#E6F9F0','#FEF3C7','#F0F0FF','#E8F8E8','#FFF0F0','#E1F5EE'];
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function toast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = (type==='error'?'❌ ':'✅ ') + msg;
+  t.style.background = type==='error' ? '#E53E3E' : '#0D0D0D';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+async function api(url, opts={}){
+  try{
+    const res = await fetch(API+url,{
+      headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json',...(opts.headers||{})},
+      ...opts
+    });
+    if(!res.ok) throw new Error(await res.text());
+    return await res.json();
+  }catch(e){
+    console.error(url, e.message);
+    return null;
+  }
+}
+
+function badge(status){
+  const map = {
+    pending:'<span class="badge b-amber">Pending</span>',
+    confirmed:'<span class="badge b-blue">Confirmed</span>',
+    ongoing:'<span class="badge b-orange">Ongoing</span>',
+    completed:'<span class="badge b-green">Completed</span>',
+    cancelled:'<span class="badge b-red">Cancelled</span>',
+  };
+  return map[status] || `<span class="badge b-gray">${status}</span>`;
+}
+
+function showModal(title, sub, onConfirm){
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-sub').textContent = sub;
+  document.getElementById('modal-confirm-btn').onclick = ()=>{ closeModal(); onConfirm(); };
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('show'); }
+
+// ═══════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════
+async function doLogin(){
+  const phone = document.getElementById('login-phone').value.trim();
+  const pass  = document.getElementById('login-pass').value.trim();
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  const data = await fetch(API+'/auth/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({phone, password:pass})
+  }).then(r=>r.json()).catch(()=>null);
+
+  if(!data || !data.access_token){
+    errEl.style.display = 'block';
+    errEl.textContent = 'Login failed. Make sure your FastAPI server is running!';
+    return;
+  }
+
+  TOKEN = data.access_token;
+  currentUser = data;
+  document.getElementById('admin-name').textContent = data.name;
+  document.getElementById('admin-initials').textContent = data.name.charAt(0).toUpperCase();
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  toast('Welcome back, '+data.name+'!');
+  loadDashboard();
+}
+
+function doLogout(){
+  TOKEN = '';
+  currentUser = null;
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+const pageTitles = {
+  dashboard:'Dashboard Overview',workers:'Manage Workers',
+  bookings:'Manage Bookings',users:'Manage Users',
+  payments:'Payments & Revenue',categories:'Service Categories'
+};
+
+function goPage(name, navEl){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('page-title').textContent = pageTitles[name]||name;
+  if(navEl){
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    navEl.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.textContent.toLowerCase().includes(name)) n.classList.add('active');
+    });
+  }
+  // Load data for each page
+  if(name==='dashboard') loadDashboard();
+  if(name==='workers')   loadWorkers();
+  if(name==='bookings')  loadBookings();
+  if(name==='users')     loadUsers();
+  if(name==='payments')  loadPaymentStats();
+  if(name==='categories') loadCategories();
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+async function loadDashboard(){
+  const stats = await api('/admin/stats');
+  if(stats){
+    document.getElementById('stat-users').textContent    = stats.total_users?.toLocaleString() || '0';
+    document.getElementById('stat-workers').textContent  = stats.total_workers?.toLocaleString() || '0';
+    document.getElementById('stat-bookings').textContent = stats.total_bookings?.toLocaleString() || '0';
+    document.getElementById('stat-revenue').textContent  = 'Rs.'+(stats.total_revenue||0).toLocaleString();
+    document.getElementById('mini-pending').textContent   = stats.pending_bookings||0;
+    document.getElementById('mini-confirmed').textContent = stats.confirmed_bookings||0;
+    document.getElementById('mini-completed').textContent = stats.completed_bookings||0;
+    document.getElementById('mini-available').textContent = stats.available_workers||0;
+    document.getElementById('mini-verified').textContent  = stats.verified_workers||0;
+    document.getElementById('workers-badge').textContent  = stats.total_workers||0;
+    document.getElementById('bookings-badge').textContent = stats.total_bookings||0;
+  }
+
+  const bookings = await api('/admin/bookings?limit=5');
+  const tbody = document.getElementById('recent-bookings-tbody');
+  if(bookings && bookings.length){
+    tbody.innerHTML = bookings.map(b=>`
+      <tr>
+        <td><span style="font-size:12px;font-weight:600">${b.booking_ref}</span><br><span style="font-size:11px;color:var(--mid)">${b.booking_date||''}</span></td>
+        <td>${b.category||'—'}</td>
+        <td style="font-weight:600">Rs.${(b.total_amount||0).toLocaleString()}</td>
+        <td>${badge(b.status)}</td>
+      </tr>`).join('');
+  } else {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--mid)">No bookings yet</td></tr>';
+  }
+
+  // Add activity
+  const feed = document.getElementById('activity-feed');
+  if(stats){
+    feed.innerHTML = `
+      <div class="activity-item"><div class="act-icon" style="background:var(--green-bg)">✅</div><div><div class="act-text">Dashboard refreshed — <strong>${stats.total_bookings}</strong> total bookings found</div><div class="act-time">just now</div></div></div>
+      <div class="activity-item"><div class="act-icon" style="background:var(--blue-bg)">👷</div><div><div class="act-text"><strong>${stats.available_workers}</strong> workers currently available for hire</div><div class="act-time">live</div></div></div>
+      <div class="activity-item"><div class="act-icon" style="background:var(--orange-light)">💰</div><div><div class="act-text">Total platform revenue: <strong>Rs.${(stats.total_revenue||0).toLocaleString()}</strong></div><div class="act-time">live</div></div></div>
+    `;
+  }
+}
+
+// ═══════════════════════════════════════════
+// WORKERS
+// ═══════════════════════════════════════════
+async function loadWorkers(){
+  const data = await api('/admin/workers?limit=100');
+  allWorkers = data || [];
+  renderWorkers(allWorkers);
+}
+
+function renderWorkers(workers){
+  const tbody = document.getElementById('workers-tbody');
+  if(!workers.length){
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👷</div><div class="empty-text">No workers found</div><div class="empty-sub">Workers will appear here after registering</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = workers.map((w,i)=>`
+    <tr>
+      <td>
+        <div class="cell-flex">
+          <div class="cell-avatar" style="background:${AVATARBG[i%AVATARBG.length]}">${EMOJIS[w.category]||'👷'}</div>
+          <div>
+            <div class="cell-name">${w.name||'Unknown'}</div>
+            <div class="cell-sub">${w.phone||''} • ${w.city||'Lahore'}</div>
+          </div>
+        </div>
+      </td>
+      <td>${w.category||'—'}</td>
+      <td>Rs.${(w.daily_rate||0).toLocaleString()}</td>
+      <td>⭐ ${w.rating||'0.0'}</td>
+      <td>${w.total_jobs||0}</td>
+      <td>${w.is_verified
+        ? '<span class="badge b-green">Verified</span>'
+        : '<span class="badge b-amber">Pending</span>'}</td>
+      <td>
+        ${!w.is_verified
+          ? `<button class="act-btn ab-green" onclick="verifyWorker(${w.id},this)">✅ Verify</button>`
+          : `<button class="act-btn ab-blue">👁 View</button>`}
+        <button class="act-btn ab-red" onclick="blockWorkerModal(${w.id},'${w.name}')">🚫 Block</button>
+      </td>
+    </tr>`).join('');
+}
+
+function filterWorkers(type, el){
+  document.querySelectorAll('#page-workers .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(type==='all') renderWorkers(allWorkers);
+  else if(type==='available') renderWorkers(allWorkers.filter(w=>w.is_available));
+  else if(type==='verified') renderWorkers(allWorkers.filter(w=>w.is_verified));
+  else if(type==='unverified') renderWorkers(allWorkers.filter(w=>!w.is_verified));
+}
+
+async function verifyWorker(id, btn){
+  const res = await api('/admin/workers/'+id+'/verify', {method:'PATCH'});
+  if(res){ toast('Worker verified successfully!'); loadWorkers(); }
+  else toast('Failed to verify worker', 'error');
+}
+
+function blockWorkerModal(id, name){
+  showModal('Block Worker', `Are you sure you want to block ${name}? They will not be able to receive bookings.`, async ()=>{
+    const res = await api('/admin/workers/'+id+'/verify', {method:'DELETE'});
+    toast('Worker blocked'); loadWorkers();
+  });
+}
+
+// ═══════════════════════════════════════════
+// BOOKINGS
+// ═══════════════════════════════════════════
+async function loadBookings(){
+  const stats = await api('/admin/stats');
+  if(stats){
+    document.getElementById('b-pending').textContent   = stats.pending_bookings||0;
+    document.getElementById('b-confirmed').textContent = stats.confirmed_bookings||0;
+    document.getElementById('b-completed').textContent = stats.completed_bookings||0;
+    document.getElementById('b-cancelled').textContent = 0;
+  }
+  const data = await api('/admin/bookings?limit=100');
+  allBookings = data || [];
+  renderBookings(allBookings);
+}
+
+function renderBookings(bookings){
+  const tbody = document.getElementById('bookings-tbody');
+  if(!bookings.length){
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No bookings yet</div><div class="empty-sub">Bookings will appear here</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = bookings.map(b=>`
+    <tr>
+      <td><span style="font-size:12px;font-weight:600;font-family:monospace">${b.booking_ref}</span></td>
+      <td>${b.user_name||'—'}</td>
+      <td>${b.worker_name||'—'}</td>
+      <td>${b.category||'—'}</td>
+      <td>${b.booking_date||'—'}</td>
+      <td style="font-weight:600">Rs.${(b.total_amount||0).toLocaleString()}</td>
+      <td>${badge(b.status)}</td>
+      <td>
+        ${b.status==='pending'?`<button class="act-btn ab-green" onclick="updateBookingStatus(${b.id},'confirmed',this)">✅ Confirm</button>`:''}
+        ${b.status==='confirmed'?`<button class="act-btn ab-orange" onclick="updateBookingStatus(${b.id},'completed',this)">🏁 Complete</button>`:''}
+        ${b.status!=='cancelled'&&b.status!=='completed'?`<button class="act-btn ab-red" onclick="updateBookingStatus(${b.id},'cancelled',this)">❌ Cancel</button>`:''}
+      </td>
+    </tr>`).join('');
+}
+
+function filterBookings(status, el){
+  document.querySelectorAll('#page-bookings .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(!status) renderBookings(allBookings);
+  else renderBookings(allBookings.filter(b=>b.status===status));
+}
+
+async function updateBookingStatus(id, status, btn){
+  const res = await api('/admin/bookings/'+id+'/status?status='+status, {method:'PATCH'});
+  if(res){ toast('Booking updated to: '+status); loadBookings(); }
+  else toast('Failed to update booking', 'error');
+}
+
+// ═══════════════════════════════════════════
+// USERS
+// ═══════════════════════════════════════════
+async function loadUsers(){
+  const data = await api('/admin/users?limit=100');
+  const tbody = document.getElementById('users-tbody');
+  if(!data||!data.length){
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">No users found</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map((u,i)=>`
+    <tr>
+      <td>
+        <div class="cell-flex">
+          <div class="cell-avatar" style="background:${AVATARBG[i%AVATARBG.length]};font-size:14px">${(u.name||'?').charAt(0)}</div>
+          <div><div class="cell-name">${u.name}</div></div>
+        </div>
+      </td>
+      <td>${u.phone}</td>
+      <td>${u.city||'Lahore'}</td>
+      <td>${u.bookings||0}</td>
+      <td>${u.is_admin?'<span class="badge b-orange">Admin</span>':'<span class="badge b-gray">User</span>'}</td>
+      <td>${u.is_active?'<span class="badge b-green">Active</span>':'<span class="badge b-red">Blocked</span>'}</td>
+      <td>
+        <button class="act-btn ${u.is_active?'ab-red':'ab-green'}" onclick="toggleUser(${u.id},'${u.name}',${u.is_active})">
+          ${u.is_active?'🚫 Block':'✅ Unblock'}
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+async function toggleUser(id, name, isActive){
+  const action = isActive ? 'block' : 'unblock';
+  showModal((isActive?'Block':'Unblock')+' User', `${action} ${name}?`, async ()=>{
+    await api('/admin/users/'+id+'/block', {method:'PATCH'});
+    toast(`User ${action}ed`); loadUsers();
+  });
+}
+
+// ═══════════════════════════════════════════
+// PAYMENTS
+// ═══════════════════════════════════════════
+async function loadPaymentStats(){
+  const stats = await api('/admin/stats');
+  if(stats){
+    document.getElementById('p-revenue').textContent  = 'Rs.'+(stats.total_revenue||0).toLocaleString();
+    document.getElementById('p-bookings').textContent = stats.completed_bookings||0;
+    document.getElementById('p-pending').textContent  = stats.pending_bookings||0;
+  }
+}
+
+// ═══════════════════════════════════════════
+// CATEGORIES
+// ═══════════════════════════════════════════
+async function loadCategories(){
+  const data = await api('/categories/');
+  const tbody = document.getElementById('categories-tbody');
+  if(!data||!data.length){
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--mid)">No categories. Start server and visit /api/categories/ to auto-seed.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map(c=>`
+    <tr>
+      <td>
+        <div class="cell-flex">
+          <div style="font-size:24px">${c.emoji||'🔧'}</div>
+          <div class="cell-name">${c.name}</div>
+        </div>
+      </td>
+      <td style="color:var(--mid);font-size:13px">${c.description||'—'}</td>
+      <td><span class="badge b-green">Active</span></td>
+    </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════
+// KEYBOARD SHORTCUT — press Enter to login
+// ═══════════════════════════════════════════
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && document.getElementById('login-page').style.display!=='none') doLogin();
+});
+</script>
+</body>
+</html>
